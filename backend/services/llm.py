@@ -2,58 +2,82 @@ import os
 import json
 from openai import OpenAI
 
-# DeepSeek is OpenAI compatible
+# DeepSeek tương thích với OpenAI SDK
 def get_deepseek_client() -> OpenAI:
     api_key = os.getenv("DEEPSEEK_API_KEY")
     if not api_key:
         raise ValueError("DEEPSEEK_API_KEY environment variable is missing")
-    return OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+    
+    return OpenAI(
+        api_key=api_key, 
+        base_url="https://api.deepseek.com",
+    )
 
-def generate_feedback(student_answers: dict, correct_answers: dict) -> dict:
+def generate_feedback(worksheet_context: str, correct_answers: dict, student_answers: dict) -> dict:
     """
-    Calls the DeepSeek LLM to evaluate student answers against correct answers.
-    Returns a dictionary containing a 'score' (0-10) and 'feedback_text' (encouraging Vietnamese text).
+    Gọi DeepSeek LLM để đối chiếu bài làm của học sinh với đáp án chuẩn.
+    Trả về: score (0-10), feedback_text (TTS), và student_grades (chi tiết đúng/sai từng câu).
     """
     client = get_deepseek_client()
     
     prompt = f"""
-    Bạn là một giáo viên dạy môn Sinh học thân thiện, nhiệt huyết.
-    Dưới đây là đáp án học sinh đã điền và đáp án đúng.
+    Bạn là một trợ giảng AI môn Sinh học thân thiện, nhiệt huyết.
+    Dưới đây là Nội dung phiếu học tập (đề bài), Đáp án chuẩn của giáo viên, và Bài làm của nhóm học sinh.
     
-    Đáp án học sinh:
-    {json.dumps(student_answers, ensure_ascii=False, indent=2)}
+    ### 1. NỘI DUNG ĐỀ BÀI:
+    {worksheet_context}
     
-    Đáp án chuẩn:
+    ### 2. ĐÁP ÁN CHUẨN CỦA GIÁO VIÊN:
     {json.dumps(correct_answers, ensure_ascii=False, indent=2)}
     
-    Nhiệm vụ của bạn:
-    1. So sánh và chấm điểm trên thang điểm 10.
-    2. Đưa ra một đoạn nhận xét ngắn gọn, khích lệ bằng tiếng Việt để đọc lên (giọng nói) cho học sinh nghe. Bắt đầu bằng việc khen ngợi, sau đó chỉ ra lỗi sai (nếu có) một cách nhẹ nhàng. Không cần liệt kê lại tất cả các câu, chỉ tập trung vào nhận xét tổng quan.
+    ### 3. BÀI LÀM CỦA HỌC SINH:
+    {json.dumps(student_answers, ensure_ascii=False, indent=2)}
     
-    Trả về ĐÚNG định dạng JSON sau (không chứa markdown nào khác):
+    ### NHIỆM VỤ CỦA BẠN:
+    1. Đánh giá chi tiết từng câu hỏi xem nhóm học sinh làm "Đúng" hay "Sai".
+    2. Viết một đoạn nhận xét ngắn gọn bằng tiếng Việt. Bắt đầu bằng việc khen ngợi, sau đó chỉ ra các câu có lỗi sai và chỉnh sửa lỗi sai ngắn gọn. Không liệt kê lại từng câu.
+    3. Không nhận xét lỗi chính tả và bỏ qua lỗi gõ phím. Chỉ tập trung vào nội dung kiến thức.
+
+    ### LƯU Ý QUAN TRỌNG VỀ ĐỊNH DẠNG ÂM THANH (TTS):
+    Đoạn `feedback_text` sẽ được dùng để chuyển thành giọng nói (Text-To-Speech). 
+    Tuyệt đối KHÔNG sử dụng các ký tự định dạng Markdown như dấu hoa thị (*), dấu thăng (#), hay gạch dưới (_), dấu nháy đơn ('), dấu nháy kép ("). Hãy viết câu chữ tự nhiên như văn nói.
+    
+    Trả về ĐÚNG định dạng JSON sau:
     {{
-        "score": <điểm số là một số float từ 0 đến 10>,
-        "feedback_text": "<đoạn văn bản nhận xét>"
+        "feedback_text": "<đoạn văn bản nhận xét tự nhiên, không chứa markdown>",
+        "student_grades": {{
+            "1": "Đúng",
+            "2": "Sai",
+            ...
+        }}
     }}
     """
     
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that outputs strictly in JSON."},
-            {"role": "user", "content": prompt}
-        ],
-        response_format={"type": "json_object"},
-        temperature=0.7
-    )
-    
     try:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": "You are a helpful AI teaching assistant. You strictly output JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.4 
+        )
+        
         content = response.choices[0].message.content
         result = json.loads(content)
+        
+        # Lấy kết quả đúng/sai từng câu lưu vào biến student_grades
+        student_grades = result.get("student_grades", {})
+        
         return {
-            "score": float(result.get("score", 0.0)),
-            "feedback_text": result.get("feedback_text", "Có lỗi xảy ra khi tạo nhận xét.")
+            "feedback_text": result.get("feedback_text", "Có lỗi xảy ra khi tạo nhận xét."),
+            "student_grades": student_grades
         }
+        
+    except json.JSONDecodeError as e:
+        print(f"Lỗi parse JSON từ LLM: {e}")
+        return {"feedback_text": "Hệ thống gặp sự cố khi đọc kết quả từ AI.", "student_grades": {}}
     except Exception as e:
-        print(f"Error parsing LLM response: {e}")
-        return {"score": 0.0, "feedback_text": "Hệ thống gặp sự cố khi tạo nhận xét."}
+        print(f"Lỗi khi gọi API DeepSeek: {e}")
+        return {"feedback_text": "Đã xảy ra lỗi kết nối với trợ lý AI.", "student_grades": {}}

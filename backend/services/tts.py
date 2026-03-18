@@ -15,7 +15,7 @@ def generate_audio(text: str, group_name: str) -> str:
         
     # Using a generic voice ID (e.g., Rachel or a Vietnamese voice if available)
     # Replace VOICE_ID with a suitable Vietnamese voice from ElevenLabs
-    VOICE_ID = "EXAVITQu4vr4xnSDxMaL" # Bella (example voice ID, might need adjustment)
+    VOICE_ID = "0ggMuQ1r9f9jqBu50nJn" # Bella (example voice ID, might need adjustment)
     
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
     
@@ -26,11 +26,12 @@ def generate_audio(text: str, group_name: str) -> str:
     }
     
     # We prefix the group name so the audio says "Nhóm 1 thân mến..."
-    full_text = f"Chào {group_name}. {text}"
+    full_text = f"Chào {group_name}. Cô sẽ tiến hành nhận xét bài của các em nhé. {text}"
     
     data = {
         "text": full_text,
-        "model_id": "eleven_multilingual_v2", # Important for Vietnamese support
+        # "model_id": "eleven_v3", # Important for Vietnamese support
+        "model_id": "eleven_flash_v2_5",
         "voice_settings": {
             "stability": 0.5,
             "similarity_boost": 0.75
@@ -41,7 +42,7 @@ def generate_audio(text: str, group_name: str) -> str:
     
     if response.status_code != 200:
         print(f"ElevenLabs error: {response.text}")
-        return "" # In a real app we might throw an exception or return error message
+        return "" # In a real app we might throw an exception or return error messag
         
     # Convert audio stream to base64 Data URI
     audio_b64 = base64.b64encode(response.content).decode('utf-8')
