@@ -30,8 +30,8 @@ def generate_audio(text: str, group_name: str) -> str:
     
     data = {
         "text": full_text,
-        # "model_id": "eleven_v3", # Important for Vietnamese support
-        "model_id": "eleven_flash_v2_5",
+        "model_id": "eleven_v3", # Important for Vietnamese support
+        # "model_id": "eleven_flash_v2_5",
         "voice_settings": {
             "stability": 0.5,
             "similarity_boost": 0.75
