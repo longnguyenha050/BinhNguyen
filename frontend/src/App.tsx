@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { GradeForm } from "./components/GradeForm";
 import { ResultCard } from "./components/ResultCard";
 import { VirtualTeacher } from "./components/VirtualTeacher";
@@ -7,7 +7,7 @@ import { ReportSummary } from "./components/ReportSummary";
 
 interface GradeResult {
   group_name: string;
-  score: number;
+  score?: number;
   feedback_text: string;
   student_answers: Record<string, string>;
   student_grades: Record<string, string>;
@@ -21,6 +21,7 @@ function App() {
   const [results, setResults] = useState<GradeResult[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
   const handleGradeSubmit = async (
     sheetFile: File,
@@ -37,7 +38,7 @@ function App() {
       formData.append("student_answers", studentFile);
       formData.append("correct_answers", JSON.stringify(correctAnswers));
 
-      const response = await fetch("http://localhost:8000/api/grade", {
+      const response = await fetch(`${apiBaseUrl}/api/grade`, {
         method: "POST",
         body: formData,
       });
@@ -226,7 +227,6 @@ function App() {
                     <ResultCard
                       key={currentIndex}
                       groupName={results[currentIndex].group_name}
-                      score={results[currentIndex].score}
                       feedbackText={results[currentIndex].feedback_text}
                       studentAnswers={results[currentIndex].student_answers}
                       studentGrades={results[currentIndex].student_grades}

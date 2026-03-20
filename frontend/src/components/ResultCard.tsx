@@ -1,8 +1,5 @@
-import React from 'react';
-
 interface ResultCardProps {
   groupName: string;
-  score: number;
   feedbackText: string;
   audioUrl: string;
   studentAnswers?: Record<string, string>;
@@ -13,7 +10,6 @@ interface ResultCardProps {
 
 export function ResultCard({ 
   groupName, 
-  score, 
   feedbackText, 
   audioUrl, 
   studentAnswers = {}, 

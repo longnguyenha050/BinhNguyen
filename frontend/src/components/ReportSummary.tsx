@@ -1,9 +1,8 @@
-import React from 'react';
-import { RefreshCw, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 
 interface GradeResult {
   group_name: string;
-  score: number;
+  score?: number;
   feedback_text: string;
   student_answers: Record<string, string>;
   student_grades: Record<string, string>;
