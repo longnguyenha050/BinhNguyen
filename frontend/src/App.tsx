@@ -276,7 +276,18 @@ function App() {
         </div>
       )}
       {step === "report" && (
-        <ReportSummary results={results} onReset={resetApp} />
+      <div 
+        style={{ 
+          flex: 1,           // Chiếm hết không gian còn lại giữa Header và Footer
+          display: 'flex', 
+          justifyContent: 'center',
+          animation: "fadeIn 0.8s ease-out" 
+        }}
+      >
+        {/* <div style={{ width: '100%', maxWidth: '800px' }}> Giới hạn độ rộng để báo cáo không bị quá to */}
+          <ReportSummary results={results} onReset={resetApp} />
+        {/* </div> */}
+      </div>
       )}
       <style>{`
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
