@@ -84,7 +84,7 @@ function App() {
       className="app-container"
       style={{ maxWidth: "1100px", margin: "0 auto", display: 'flex', flexDirection: 'column', minHeight: '100vh', }}
     >
-      <Header onReset={resetApp} />
+      <Header/>
       {/* 1. TRẠNG THÁI CHỜ (IDLE) */}
       {step === "idle" && (
         <div style={{ textAlign: "center", animation: "fadeIn 0.5s" }}>

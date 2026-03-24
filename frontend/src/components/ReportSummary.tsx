@@ -15,7 +15,7 @@ interface ReportSummaryProps {
 
 export function ReportSummary({ results, onReset }: ReportSummaryProps) {
   return (
-    <div className="animate-slide-up" style={{width: '500px', background: 'white', padding: '32px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
+    <div className="animate-slide-up" style={{width: '500px', background: 'white', padding: '32px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <h2 style={{ fontSize: '2rem', color: '#1a1a1a', margin: '0 0 8px 0' }}>Báo Cáo Tổng Hợp</h2>
         <p style={{ color: '#6b7280', margin: 0 }}>Thống kê kết quả làm bài của toàn bộ các nhóm</p>
