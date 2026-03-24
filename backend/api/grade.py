@@ -15,7 +15,7 @@ router = APIRouter()
 
 # Khởi tạo Semaphore để giới hạn số lượng request song song (ví dụ: 5 học sinh cùng lúc)
 # Tránh treo máy chủ hoặc bị API khóa vì gọi quá nhanh
-sem = asyncio.Semaphore(5)
+sem = asyncio.Semaphore(3)
 
 class GradeResult(BaseModel):
     group_name: str
