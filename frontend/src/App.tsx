@@ -4,6 +4,8 @@ import { GradeForm } from "./components/GradeForm";
 import { ResultCard } from "./components/ResultCard";
 import { VirtualTeacher } from "./components/VirtualTeacher";
 import { ReportSummary } from "./components/ReportSummary";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 
 interface GradeResult {
   group_name: string;
@@ -54,7 +56,7 @@ function App() {
       setTimeout(() => {
         setResults(data.results);
         setStep("result");
-      }, 1500);
+      }, 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Đã xảy ra lỗi kết nối.");
       setStep("idle");
@@ -80,15 +82,16 @@ function App() {
   return (
     <div
       className="app-container"
-      style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 20px" }}
+      style={{ maxWidth: "1100px", margin: "0 auto", display: 'flex', flexDirection: 'column', minHeight: '100vh', }}
     >
+      <Header onReset={resetApp} />
       {/* 1. TRẠNG THÁI CHỜ (IDLE) */}
       {step === "idle" && (
         <div style={{ textAlign: "center", animation: "fadeIn 0.5s" }}>
           {/* <div style={{ marginBottom: '20px' }}>
             <Bot size={64} color="#4f46e5" strokeWidth={1.5} />
           </div> */}
-          <h1 style={{ fontSize: "2.5rem", marginBottom: "10px" }}>
+          <h1 style={{ fontSize: "2.5rem", marginBottom: "10px"}}>
             Trợ Lý AI Chấm Điểm
           </h1>
           <p style={{ color: "#6b7280", marginBottom: "30px" }}>
@@ -162,7 +165,7 @@ function App() {
               <div
                 style={{
                   position: "relative" /* Thêm relative để chứa SVG absolute */,
-                  padding: "60px",
+                  padding: "160px 40px",
                   textAlign: "center",
                   background: "#f9fafb",
                   borderRadius: "20px",
@@ -280,6 +283,7 @@ function App() {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes borderDash { to { stroke-dashoffset: -24; } }
       `}</style>
+      <Footer />
     </div>
   );
 }
