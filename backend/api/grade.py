@@ -94,18 +94,18 @@ async def grade_sheet(
                 feedback_text = llm_result.get("feedback_text", "")
 
                 # Tiếp tục dùng to_thread cho phần tạo Audio
-                # audio_url = await asyncio.to_thread(
-                #     generate_audio, 
-                #     feedback_text, 
-                #     group_name
-                # )
+                audio_url = await asyncio.to_thread(
+                    generate_audio, 
+                    feedback_text, 
+                    group_name
+                )
                 
                 return GradeResult(
                     group_name=group_name,
                     feedback_text=feedback_text,
                     student_answers=student_answers_dict,
                     student_grades=llm_result.get("student_grades", {}),
-                    # audio_url=audio_url
+                    audio_url=audio_url
                 )
 
         # Tạo danh sách các task và chạy song song
